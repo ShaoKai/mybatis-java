@@ -1,0 +1,1 @@
+mvn clean package install:install-file -Dfile=target/mybatis-oracle-typeresolver-0.0.1-SNAPSHOT.jar -DgroupId=com.sky.mybatis -DartifactId=mybatis-oracle-typeresolver -Dversion=0.0.1-SNAPSHOT -Dpackaging=jar
