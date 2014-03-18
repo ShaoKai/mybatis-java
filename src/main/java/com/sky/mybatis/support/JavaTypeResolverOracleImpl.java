@@ -1,4 +1,4 @@
-package com.sky.mybatis;
+package com.sky.mybatis.support;
 
 import java.sql.Types;
 import java.util.Date;
