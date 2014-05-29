@@ -12,7 +12,6 @@ import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
-import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.RowBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +31,7 @@ public class PageInterceptor implements Interceptor {
 
 		} else {
 
-			Configuration configuration = (Configuration) metaObject.getValue("delegate.configuration");
+			// Configuration configuration = (Configuration) metaObject.getValue("delegate.configuration");
 
 			String originalSql = (String) metaObject.getValue("delegate.boundSql.sql");
 			metaObject.setValue("delegate.boundSql.sql", changeToPageSql(originalSql, rowBounds.getOffset(), rowBounds.getLimit()));
@@ -55,11 +54,15 @@ public class PageInterceptor implements Interceptor {
 			sql = sql.substring(0, sql.length() - 11);
 			isForUpdate = true;
 		}
-		StringBuffer pageSql = new StringBuffer(sql.length() + 100);
-		pageSql.append("select * from ( select row_.*, rownum rownum_ from ( ");
-		pageSql.append(sql);
-		pageSql.append(" ) row_ ) where rownum_ > " + start + " and rownum_ <= " + (start + pageSize));
 
+		StringBuffer pageSql = new StringBuffer(sql.length() + 100);
+		if (pageSize < 0) {
+			pageSql.append(sql);
+		} else {
+			pageSql.append("select * from ( select row_.*, rownum rownum_ from ( ");
+			pageSql.append(sql);
+			pageSql.append(" ) row_ ) where rownum_ > " + start + " and rownum_ <= " + (start + pageSize));
+		}
 		if (isForUpdate) {
 			pageSql.append(" for update");
 		}
