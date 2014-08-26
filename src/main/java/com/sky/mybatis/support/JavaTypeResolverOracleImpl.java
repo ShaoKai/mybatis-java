@@ -14,8 +14,12 @@ import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl;
 import org.mybatis.generator.internal.types.Jdbc4Types;
 import org.mybatis.generator.internal.util.StringUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JavaTypeResolverOracleImpl extends JavaTypeResolverDefaultImpl {
+
+	private static final Logger logger = LoggerFactory.getLogger(JavaTypeResolverOracleImpl.class);
 
 	protected List<String> warnings;
 
@@ -75,7 +79,10 @@ public class JavaTypeResolverOracleImpl extends JavaTypeResolverDefaultImpl {
 	public FullyQualifiedJavaType calculateJavaType(IntrospectedColumn introspectedColumn) {
 		FullyQualifiedJavaType answer;
 		JdbcTypeInformation jdbcTypeInformation = typeMap.get(introspectedColumn.getJdbcType());
-
+		if ("json".equalsIgnoreCase(introspectedColumn.getActualColumnName())) {
+			logger.debug("{}", introspectedColumn.getJdbcType());
+			return new FullyQualifiedJavaType(String.class.getName());
+		}
 		if (jdbcTypeInformation == null) {
 			switch (introspectedColumn.getJdbcType()) {
 				case Types.DECIMAL:
@@ -110,7 +117,10 @@ public class JavaTypeResolverOracleImpl extends JavaTypeResolverDefaultImpl {
 	public String calculateJdbcTypeName(IntrospectedColumn introspectedColumn) {
 		String answer;
 		JdbcTypeInformation jdbcTypeInformation = typeMap.get(introspectedColumn.getJdbcType());
-
+		if ("json".equalsIgnoreCase(introspectedColumn.getActualColumnName())) {
+			logger.debug("{} : {}", introspectedColumn.getActualColumnName(), introspectedColumn.getJdbcType());
+			return "VARCHAR";
+		}
 		if (jdbcTypeInformation == null) {
 			switch (introspectedColumn.getJdbcType()) {
 				case Types.DECIMAL:
@@ -128,7 +138,6 @@ public class JavaTypeResolverOracleImpl extends JavaTypeResolverDefaultImpl {
 			if (answer == "OTHER") {
 				answer = "TIMESTAMP";
 			}
-
 		}
 
 		return answer;
@@ -143,6 +152,7 @@ public class JavaTypeResolverOracleImpl extends JavaTypeResolverDefaultImpl {
 	}
 
 	public static class JdbcTypeInformation {
+
 		private String jdbcTypeName;
 
 		private FullyQualifiedJavaType fullyQualifiedJavaType;
